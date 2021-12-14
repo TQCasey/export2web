@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ name }}</title>
+</head>
+<body>
+    <form enctype="multipart/form-data" action="/upload/" method="POST">
+        {% csrf_token %}
+        <label>价格表</label></br>
+        <input type="file" name="upload" /></br></br>
+
+        <label>输入文件</label></br>
+        <input type="file" name="upload" /></br></br>
+
+        <label>参数</label></br>
+        <input type="text" name=""/></br></br>
+
+        <label>文件</label></br>
+        <input type="text" name=""/></br></br>
+
+        <input type="submit" value="提交数据"/>
+    </form>
+
+</body>
+</html>

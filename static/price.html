@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ name }}</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+    <form enctype="multipart/form-data" id="formdata">
+        {% csrf_token %}
+        价格表:  <input type="file" name="upload" id="data_file"/></br>
+    </form>
+
+    表格栏目名称(不填则默认第一个) : <input type="text" id="sheet_name"/></br>
+    商品名称列名 : <input type="text" id="name_column"/></br>
+    税前价格列名 : <input type="text" id="org_column"/></br>
+    税后价格列名 : <input type="text" id="now_column"/></br>
+    </br><button type="button" id="btn_submit">提交数据</button>
+
+    <a href="http://www.w3school.com.cn" id="link_download"></a>
+
+    <script>
+        $(document).ready(function () {
+            $("#btn_submit").click(function () {
+
+                var files = $('#data_file').prop('files');
+                var name_column = $("#name_column").val();
+                var sheet_name = $("#sheet_name").val();
+                var org_column = $("#org_column").val();
+                var now_column = $("#now_column").val();
+
+                var formdata = new FormData();
+                formdata.append("name_column",name_column);
+                formdata.append("sheet_name",sheet_name);
+                formdata.append("org_column",org_column);
+                formdata.append("now_column",now_column);
+                formdata.append("file",files [0])
+
+                $.ajax({
+                    method : "post",
+                    url : "/upload/",
+                    cache : false,
+                    data : formdata,
+                    contentType: false,
+                    processData: false
+                }).success (function (data) {
+                    if (data.ret < 0) {
+                        alert(data.msg);
+                    } else {
+                        $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data);
+                    }
+                }).error (function (err) {
+                    alert(err.statusText)
+                })
+            })
+        })
+
+    </script>
+
+</body>
+</html>
