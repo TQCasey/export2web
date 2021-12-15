@@ -1,26 +1,71 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ name }}</title>
-    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>CCCC</title>
+    <link href="../static/libs/layui/css/layui.css">
 </head>
+
+<style type="text/css">
+    .container {
+        width: 80%;
+        max-width: 500px;
+        min-height: 100px;
+        height: 50%;
+        background-color: rgb(139, 182, 182);
+        border-radius: 20px;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        margin: auto 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    body {
+        background-color: rgb(179, 168, 122);
+        width: 100%;
+        height: 100% ;
+        margin: 0;
+        padding: 0;
+        /* border-color: burlywood; */
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+</style>
+
 <body>
-    <form enctype="multipart/form-data" id="formdata">
-        {% csrf_token %}
-        价格表:  <input type="file" name="upload" id="data_file"/></br>
-    </form>
+    <script src="../static/libs/layui/layui.js"></script>
 
-    表格栏目名称(不填则默认第一个) : <input type="text" id="sheet_name"/></br>
-    商品名称列名 : <input type="text" id="name_column"/></br>
-    税前价格列名 : <input type="text" id="org_column"/></br>
-    税后价格列名 : <input type="text" id="now_column"/></br>
-    </br><button type="button" id="btn_submit">提交数据</button>
+    <div class="container">
+        <form enctype="multipart/form-data" id="formdata">
+            {% csrf_token %}
+            价格表:<input type="file" name="upload" id="data_file"/></br>
+        </form>
+        </br>
 
-    <a href="http://www.w3school.com.cn" id="link_download"></a>
+        <div>表格栏目名称(不填则默认第一个) : <input type="text" id="sheet_name"/></div></br>
+        <div>商品名称列名 : <input type="text" id="name_column"/></div></br>
+        <div>税前价格列名 : <input type="text" id="org_column"/></div></br>
+        <div>税后价格列名 : <input type="text" id="now_column"/></div></br>
+        <div><a href="http://www.w3school.com.cn" id="link_download"></a></div>
+        </br><button type="button" id="btn_submit" class="layui-btn">提交数据</button>
+
+
+    </div>
 
     <script>
-        $(document).ready(function () {
+        layui.use(['layer','form','jquery'],function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            var $ = layui.$;
+
             $("#btn_submit").click(function () {
 
                 var files = $('#data_file').prop('files');
@@ -36,16 +81,18 @@
                 formdata.append("now_column",now_column);
                 formdata.append("file",files [0])
 
+                var loading = layer.load (1);
                 $.ajax({
                     method : "post",
-                    url : "/upload/",
+                    url : "/export_price/",
                     cache : false,
                     data : formdata,
                     contentType: false,
                     processData: false
                 }).success (function (data) {
+                    layer.close (loading);
                     if (data.ret < 0) {
-                        alert(data.msg);
+                        layer.msg(data.msg);
                     } else {
                         $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data);
                     }
@@ -53,8 +100,10 @@
                     alert(err.statusText)
                 })
             })
-        })
 
+            {#var loading = layer.load(2,{time : 2 * 1000});#}
+
+        })
     </script>
 
 </body>

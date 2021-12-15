@@ -16,13 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from views import export2
+from views import export
 
 urlpatterns = [
-    path('', export2.main),
+    path('', export.export),
     path('admin/', admin.site.urls),
-    path('export/', export2.main),
-    path('price/', export2.price),
-    path('upload/', export2.upload),
-    path(r'download/', export2.download),
+    path('export/', export.export),
+    path('price/', export.price),
+    path('export_price/', export.export_price),
+    path(r'export2shop/', export.export2shop),
+    path(r'download/', export.download),
 ]

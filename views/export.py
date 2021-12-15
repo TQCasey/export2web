@@ -129,7 +129,7 @@ def handle_uploaded_file(f):
         for chunk in f.chunks():
             destination.write(chunk)
 
-def main(request):
+def export(request):
     views_name = "Love Django";
     return render(request,"export.html",{"name" : views_name});
 
@@ -138,7 +138,11 @@ def price(request):
     return render(request,"price.html",{"name" : views_name});
 
 @csrf_exempt
-def upload(request):
+def export2shop(request):
+    return HttpResponse("JSS")
+
+@csrf_exempt
+def export_price(request):
     if request.method == 'POST':
         file_obj = request.FILES.get("file")
         if not file_obj:

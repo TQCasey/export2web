@@ -1,26 +1,142 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ name }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>CCCC</title>
+    <link href="../static/libs/layui/css/layui.css">
 </head>
+
+<style type="text/css">
+    .container {
+        width: 80%;
+        max-width: 500px;
+        min-height: 100px;
+        height: 50%;
+        background-color: rgb(139, 182, 182);
+        border-radius: 20px;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        margin: auto 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    body {
+        background-color: rgb(179, 168, 122);
+        width: 100%;
+        height: 100% ;
+        margin: 0;
+        padding: 0;
+        /* border-color: burlywood; */
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+</style>
+
 <body>
-    <form enctype="multipart/form-data" action="/upload/" method="POST">
-        {% csrf_token %}
-        <label>价格表</label></br>
-        <input type="file" name="upload" /></br></br>
+    <script src="../static/libs/layui/layui.js"></script>
 
-        <label>输入文件</label></br>
-        <input type="file" name="upload" /></br></br>
+    <div class="container">
+        <form enctype="multipart/form-data" id="priceform">
+            {% csrf_token %}
+            价格表:<input type="file" name="upload" id="data_file"/></br>
+        </form>
+        </br>
 
-        <label>参数</label></br>
-        <input type="text" name=""/></br></br>
+        <div>表格栏目名称(不填则默认第一个) : <input type="text" id="sheet_name"/></div></br>
+        <div>商品名称列名 : <input type="text" id="name_column"/></div></br>
+        <div>税前价格列名 : <input type="text" id="org_column"/></div></br>
+        <div>税后价格列名 : <input type="text" id="now_column"/></div></br>
 
-        <label>文件</label></br>
-        <input type="text" name=""/></br></br>
+        <form enctype="multipart/form-data" id="destform">
+            {% csrf_token %}
+            采购表:<input type="file" name="upload" id="dest_file"/></br>
+        </form>
+        </br>
 
-        <input type="submit" value="提交数据"/>
-    </form>
+        <div>采购表格栏目名称(以逗号分割,例如 A,B) : <input type="text" id="sheet_name"/></div></br>
+        <div>采购商品名称列名 : <input type="text" id="name_column"/></div></br>
+        <div>采购税前价格列名 : <input type="text" id="org_column"/></div></br>
+        <div>采购税后价格列名 : <input type="text" id="now_column"/></div></br>
+
+        <div><a href="http://www.w3school.com.cn" id="link_download"></a></div>
+        </br><button type="button" id="btn_submit" class="layui-btn">提交数据</button>
+
+    </div>
+
+    <script>
+        layui.use(['layer','form','jquery'],function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            var $ = layui.$;
+
+            $("#btn_submit").click(function () {
+
+
+   {#output_name = kwargs.get("output_name");#}
+   {# output_file = kwargs.get("output_file");#}
+   {# output_sheet_names = kwargs.get("output_sheet_names");#}
+   {##}
+   {# price_file = kwargs.get("price_file");#}
+   {# price_sheet_name = kwargs.get("price_sheet_name");#}
+   {##}
+   {# price_colmn_name = kwargs.get("price_colmn_name");#}
+   {# output_column_name = kwargs.get("output_column_name");#}
+   {##}
+   {# price_column_org = kwargs.get("price_column_org");#}
+   {# price_column_real = kwargs.get("price_column_real");#}
+   {##}
+   {# output_column_org = kwargs.get("output_column_org");#}
+   {# output_column_real = kwargs.get("output_column_real");#}
+
+
+                var src_files = $('#data_file').prop('files');
+                var dest_files = $('#dest_file').prop('files');
+                var name_column = $("#name_column").val();
+                var sheet_name = $("#sheet_name").val();
+                var org_column = $("#org_column").val();
+                var now_column = $("#now_column").val();
+
+                var formdata = new FormData();
+                formdata.append("name_column",name_column);
+                formdata.append("sheet_name",sheet_name);
+                formdata.append("org_column",org_column);
+                formdata.append("now_column",now_column);
+                formdata.append("src_file",src_files [0])
+                formdata.append("dest_file",dest_files [0])
+
+
+                var loading = layer.load (3);
+                $.ajax({
+                    method : "post",
+                    url : "/export2shop/",
+                    cache : false,
+                    data : formdata,
+                    contentType: false,
+                    processData: false
+                }).success (function (data) {
+                    layer.close (loading);
+                    if (data.ret < 0) {
+                        layer.msg(data.msg);
+                    } else {
+                        $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data);
+                    }
+                }).error (function (err) {
+                    alert(err.statusText)
+                })
+            })
+
+            {#var loading = layer.load(2,{time : 2 * 1000});#}
+
+        })
+    </script>
 
 </body>
 </html>
