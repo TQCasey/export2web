@@ -94,7 +94,9 @@
                     if (data.ret < 0) {
                         layer.msg(data.msg);
                     } else {
-                        $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data);
+                        $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data).click(function () {
+                            $("#link_download").text("");
+                        })
                     }
                 }).error (function (err) {
                     alert(err.statusText)

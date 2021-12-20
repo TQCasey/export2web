@@ -46,14 +46,14 @@
     <div class="container">
         <form enctype="multipart/form-data" id="priceform">
             {% csrf_token %}
-            价格表:<input type="file" name="upload" id="data_file"/></br>
+            价格表:<input type="file" name="upload" id="src_file"/></br>
         </form>
         </br>
 
-        <div>表格栏目名称(不填则默认第一个) : <input type="text" id="sheet_name"/></div></br>
-        <div>商品名称列名 : <input type="text" id="name_column"/></div></br>
-        <div>税前价格列名 : <input type="text" id="org_column"/></div></br>
-        <div>税后价格列名 : <input type="text" id="now_column"/></div></br>
+        <div>表格栏目名称(不填则默认第一个) : <input type="text" id="src_sheet_name"/></div></br>
+        <div>商品名称列名 : <input type="text" id="src_name_column"/></div></br>
+        <div>税前价格列名 : <input type="text" id="src_org_column"/></div></br>
+        <div>税后价格列名 : <input type="text" id="src_now_column"/></div></br>
 
         <form enctype="multipart/form-data" id="destform">
             {% csrf_token %}
@@ -61,10 +61,10 @@
         </form>
         </br>
 
-        <div>采购表格栏目名称(以逗号分割,例如 A,B) : <input type="text" id="sheet_name"/></div></br>
-        <div>采购商品名称列名 : <input type="text" id="name_column"/></div></br>
-        <div>采购税前价格列名 : <input type="text" id="org_column"/></div></br>
-        <div>采购税后价格列名 : <input type="text" id="now_column"/></div></br>
+        <div>采购表格栏目名称(以逗号分割,例如 A,B) : <input type="text" id="dest_sheet_name"/></div></br>
+        <div>采购商品名称列名 : <input type="text" id="dest_name_column"/></div></br>
+        <div>采购税前价格列名 : <input type="text" id="dest_org_column"/></div></br>
+        <div>采购税后价格列名 : <input type="text" id="dest_now_column"/></div></br>
 
         <div><a href="http://www.w3school.com.cn" id="link_download"></a></div>
         </br><button type="button" id="btn_submit" class="layui-btn">提交数据</button>
@@ -79,39 +79,30 @@
 
             $("#btn_submit").click(function () {
 
+                var src_files = $('#src_file').prop('files');
+                var src_sheet_name = $("#src_sheet_name").val();
+                var src_name_column = $("#src_name_column").val();
+                var src_org_column = $("#src_org_column").val();
+                var src_now_column = $("#src_now_column").val();
 
-   {#output_name = kwargs.get("output_name");#}
-   {# output_file = kwargs.get("output_file");#}
-   {# output_sheet_names = kwargs.get("output_sheet_names");#}
-   {##}
-   {# price_file = kwargs.get("price_file");#}
-   {# price_sheet_name = kwargs.get("price_sheet_name");#}
-   {##}
-   {# price_colmn_name = kwargs.get("price_colmn_name");#}
-   {# output_column_name = kwargs.get("output_column_name");#}
-   {##}
-   {# price_column_org = kwargs.get("price_column_org");#}
-   {# price_column_real = kwargs.get("price_column_real");#}
-   {##}
-   {# output_column_org = kwargs.get("output_column_org");#}
-   {# output_column_real = kwargs.get("output_column_real");#}
-
-
-                var src_files = $('#data_file').prop('files');
                 var dest_files = $('#dest_file').prop('files');
-                var name_column = $("#name_column").val();
-                var sheet_name = $("#sheet_name").val();
-                var org_column = $("#org_column").val();
-                var now_column = $("#now_column").val();
+                var dest_sheet_name = $("#dest_sheet_name").val();
+                var dest_name_column = $("#dest_name_column").val();
+                var dest_org_column = $("#dest_org_column").val();
+                var dest_now_column = $("#dest_now_column").val();
 
                 var formdata = new FormData();
-                formdata.append("name_column",name_column);
-                formdata.append("sheet_name",sheet_name);
-                formdata.append("org_column",org_column);
-                formdata.append("now_column",now_column);
-                formdata.append("src_file",src_files [0])
-                formdata.append("dest_file",dest_files [0])
+                formdata.append("src_file",src_files [0]);
+                formdata.append("src_sheet_name",src_sheet_name);
+                formdata.append("src_name_column",src_name_column);
+                formdata.append("src_org_column",src_org_column);
+                formdata.append("src_now_column",src_now_column);
 
+                formdata.append("dest_file",dest_files [0])
+                formdata.append("dest_sheet_name",dest_sheet_name);
+                formdata.append("dest_name_column",dest_name_column);
+                formdata.append("dest_org_column",dest_org_column);
+                formdata.append("dest_now_column",dest_now_column);
 
                 var loading = layer.load (3);
                 $.ajax({
@@ -126,7 +117,9 @@
                     if (data.ret < 0) {
                         layer.msg(data.msg);
                     } else {
-                        $("#link_download").text("点我下载价格表").attr ("href","/download?file=" + data.data);
+                        $("#link_download").text("点击我下载导出表格").attr ("href","/download?file=" + data.data).click(function () {
+                            $("#link_download").text("");
+                        })
                     }
                 }).error (function (err) {
                     alert(err.statusText)

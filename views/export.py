@@ -13,24 +13,37 @@ from openpyxl import load_workbook, Workbook
 
 def proceedXLSX(**kwargs):
 
-    output_name = kwargs.get("output_name");
-    output_file = kwargs.get("output_file");
-    output_sheet_names = kwargs.get("output_sheet_names");
+    src_file = kwargs.get("src_file");
+    src_sheet_name = kwargs.get("src_sheet_name");
+    src_name_column = kwargs.get("src_name_column");
+    src_org_column = kwargs.get("src_org_column");
+    src_now_column = kwargs.get("src_now_column");
 
-    price_file = kwargs.get("price_file");
-    price_sheet_name = kwargs.get("price_sheet_name");
+    dest_file = kwargs.get("dest_file");
+    dest_sheet_name = kwargs.get("dest_sheet_name");
+    dest_name_column = kwargs.get("dest_name_column");
+    dest_org_column = kwargs.get("dest_org_column");
+    dest_now_column = kwargs.get("dest_now_column");
 
-    price_colmn_name = kwargs.get("price_colmn_name");
-    output_column_name = kwargs.get("output_column_name");
+    output_file = dest_file;
+    output_sheet_names = dest_sheet_name.split (",");
+    dest_tbl = load_workbook(output_file);
 
-    price_column_org = kwargs.get("price_column_org");
-    price_column_real = kwargs.get("price_column_real");
+    price_file = src_file;
+    product_tbl = load_workbook(price_file, data_only=True);
 
-    output_column_org = kwargs.get("output_column_org");
-    output_column_real = kwargs.get("output_column_real");
+    price_sheet_name = src_sheet_name;
+    if price_sheet_name == None or price_sheet_name == "":
+        price_sheet_name = product_tbl.sheetnames[0];
 
-    dest_tbl = load_workbook (output_file);
-    product_tbl = load_workbook (price_file,data_only=True);
+    price_colmn_name = src_name_column;
+    output_column_name = dest_name_column;
+
+    price_column_org = src_org_column;
+    price_column_real = src_now_column;
+
+    output_column_org = dest_org_column;
+    output_column_real = dest_now_column;
 
     def makePrice(output_sheet_name):
         dest_sheet = dest_tbl [output_sheet_name]
@@ -50,8 +63,8 @@ def proceedXLSX(**kwargs):
                             now_price = product_sheet [price_column_real][price_ceil.row - 1];
 
                             if org_price and now_price:
-                                dest_sheet [output_column_org] [ceil.row - 1].value = round (org_price.value,2);
-                                dest_sheet [output_column_real] [ceil.row - 1].value = round (now_price.value,2);
+                                dest_sheet [output_column_org] [ceil.row - 1].value = org_price.value;
+                                dest_sheet [output_column_real] [ceil.row - 1].value = now_price.value;
                                 found = True;
 
                             break;
@@ -66,8 +79,12 @@ def proceedXLSX(**kwargs):
         print("========> 处理 %s " % output_sheet_name)
         makePrice (output_sheet_name);
 
-    output_time = time.strftime("%Y%m%d%H%M%S", time.localtime());
-    dest_tbl.save(output_name + "_" + output_time + ".xlsx");
+    output_filename = "%s_%s" % (time.strftime("%Y%m%d%H%M%S",time.localtime()),dest_file.name);
+    output_dir = os.path.join("static","download");
+    output_filepath = os.path.join(output_dir, output_filename)
+    dest_tbl.save(output_filepath);
+
+    return output_filename;
 
 def exportPriceTable(**kwargs):
     try:
@@ -97,8 +114,8 @@ def exportPriceTable(**kwargs):
 
             try:
                 if org_price and now_price and org_price.value and now_price.value:
-                    org_price_value = round(org_price.value, 2);
-                    now_price_value = round(now_price.value, 2);
+                    org_price_value = round(org_price.value, 3);
+                    now_price_value = round(now_price.value, 3);
                     output_sheet.append([price_ceil.value, org_price_value, now_price_value]);
 
             except Exception as err:
@@ -139,7 +156,56 @@ def price(request):
 
 @csrf_exempt
 def export2shop(request):
-    return HttpResponse("JSS")
+    if request.method == 'POST':
+        src_file = request.FILES.get("src_file")
+        if not src_file:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : "没有价格表上传",
+            });
+
+        dest_file = request.FILES.get("dest_file")
+        if not dest_file:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : "没有采购表上传",
+            });
+
+        src_sheet_name  = request.POST["src_sheet_name"];
+        src_name_column = request.POST["src_name_column"].upper ();
+        src_org_column  = request.POST["src_org_column"].upper ();
+        src_now_column  = request.POST["src_now_column"].upper ();
+
+        dest_sheet_name  = request.POST["dest_sheet_name"];
+        dest_name_column = request.POST["dest_name_column"].upper ();
+        dest_org_column  = request.POST["dest_org_column"].upper ();
+        dest_now_column  = request.POST["dest_now_column"].upper ();
+
+        resp = proceedXLSX (
+            src_file = src_file,
+            src_sheet_name = src_sheet_name,
+            src_name_column = src_name_column,
+            src_org_column = src_org_column,
+            src_now_column = src_now_column,
+
+            dest_file = dest_file,
+            dest_sheet_name = dest_sheet_name,
+            dest_name_column = dest_name_column,
+            dest_org_column = dest_org_column,
+            dest_now_column = dest_now_column,
+        );
+
+        if "Error" in resp:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : resp,
+            });
+
+        return JsonResponse({
+            "ret" : 0,
+            "data" : resp,
+            "msg" : "",
+        });
 
 @csrf_exempt
 def export_price(request):
@@ -148,13 +214,13 @@ def export_price(request):
         if not file_obj:
             return JsonResponse({
                 "ret" : -1,
-                "msg" : "No File Uploaded",
+                "msg" : "没有价格表上传",
             });
 
         sheet_name  = request.POST["sheet_name"];
-        name_column = request.POST["name_column"];
-        org_column  = request.POST["org_column"];
-        now_column  = request.POST["now_column"];
+        name_column = request.POST["name_column"].upper ();
+        org_column  = request.POST["org_column"].upper ();
+        now_column  = request.POST["now_column"].upper ();
 
         resp = exportPriceTable(
             price_file=file_obj,
@@ -180,7 +246,7 @@ def download(request):
     if request.method == 'POST':
         return JsonResponse({
             "ret" : -1,
-            "msg" : "Bad Url"
+            "msg" : "错误的参数"
         })
 
     def file_iterator(file_name, chunk_size=512):
@@ -196,7 +262,7 @@ def download(request):
     if filename == "" or filename == None:
         return JsonResponse({
             "ret": -1,
-            "msg": "Bad Url"
+            "msg": "错误的参数"
         });
 
     local_filepath = os.path.join("static","download",filename);
@@ -204,7 +270,7 @@ def download(request):
     if not os.path.exists(local_filepath):
         return JsonResponse({
             "ret": -1,
-            "msg": "404 file"
+            "msg": "找不到文件"
         });
 
     response = StreamingHttpResponse(file_iterator(local_filepath))
