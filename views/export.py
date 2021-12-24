@@ -2,7 +2,7 @@ import json
 
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, StreamingHttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django import forms
 import os
 import time
@@ -147,12 +147,37 @@ def handle_uploaded_file(f):
             destination.write(chunk)
 
 def export(request):
-    views_name = "Love Django";
-    return render(request,"export.html",{"name" : views_name});
+    # views_name = "Love Django";
+    # return render(request,"export.html",{"name" : views_name});
+
+    return redirect ('http://localhost:3000/')
 
 def price(request):
     views_name = "Love Django";
     return render(request,"price.html",{"name" : views_name});
+
+@csrf_exempt
+def sheetnames(request):
+    if request.method == 'POST':
+        src_file = request.FILES.get("src_file")
+        if not src_file:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : "没有价格表上传",
+            });
+
+        product_tbl = load_workbook(src_file, data_only=True);
+
+        return JsonResponse({
+            "ret": 0,
+            "msg": "",
+            "data" : product_tbl.sheetnames,
+        });
+
+    return JsonResponse({
+        "ret": -1,
+        "msg": "参数错误了好像",
+    });
 
 @csrf_exempt
 def export2shop(request):
@@ -210,7 +235,7 @@ def export2shop(request):
 @csrf_exempt
 def export_price(request):
     if request.method == 'POST':
-        file_obj = request.FILES.get("file")
+        file_obj = request.FILES.get("src_file")
         if not file_obj:
             return JsonResponse({
                 "ret" : -1,
