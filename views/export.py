@@ -1,4 +1,5 @@
 import json
+from curses.ascii import isdigit
 
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, StreamingHttpResponse
@@ -12,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from openpyxl import load_workbook, Workbook
 
 def proceedXLSX(**kwargs):
+    errmsg = "";
 
     src_file = kwargs.get("src_file");
     src_sheet_name = kwargs.get("src_sheet_name");
@@ -49,6 +51,8 @@ def proceedXLSX(**kwargs):
         dest_sheet = dest_tbl [output_sheet_name]
         product_sheet = product_tbl [price_sheet_name];
 
+        errmsg = "";
+
         product_names = product_sheet [price_colmn_name]; ## 报价
         dest_names = dest_sheet [output_column_name]; ## 账单
 
@@ -72,19 +76,21 @@ def proceedXLSX(**kwargs):
                     pass
 
                 if not found:
-                    print ("找不到 %s " % ceil.value)
+                    errmsg += ("找不到 %s \n" % ceil.value);
+
+        return errmsg;
 
     for k in range(len(output_sheet_names)):
         output_sheet_name = output_sheet_names [k];
-        print("========> 处理 %s " % output_sheet_name)
-        makePrice (output_sheet_name);
+        # print("========> 处理 %s " % output_sheet_name)
+        errmsg += makePrice (output_sheet_name);
 
     output_filename = "%s_%s" % (time.strftime("%Y%m%d%H%M%S",time.localtime()),dest_file.name);
     output_dir = os.path.join("static","download");
     output_filepath = os.path.join(output_dir, output_filename)
     dest_tbl.save(output_filepath);
 
-    return output_filename;
+    return (output_filename,errmsg);
 
 def exportPriceTable(**kwargs):
     try:
@@ -148,13 +154,7 @@ def handle_uploaded_file(f):
 
 def export(request):
     # views_name = "Love Django";
-    # return render(request,"export.html",{"name" : views_name});
-
-    return redirect ('http://localhost:3000/')
-
-def price(request):
-    views_name = "Love Django";
-    return render(request,"price.html",{"name" : views_name});
+    return render(request,"index.html");
 
 @csrf_exempt
 def sheetnames(request):
@@ -163,7 +163,7 @@ def sheetnames(request):
         if not src_file:
             return JsonResponse({
                 "ret" : -1,
-                "msg" : "没有价格表上传",
+                "msg" : "没有表文件上传",
             });
 
         product_tbl = load_workbook(src_file, data_only=True);
@@ -206,7 +206,7 @@ def export2shop(request):
         dest_org_column  = request.POST["dest_org_column"].upper ();
         dest_now_column  = request.POST["dest_now_column"].upper ();
 
-        resp = proceedXLSX (
+        res = proceedXLSX (
             src_file = src_file,
             src_sheet_name = src_sheet_name,
             src_name_column = src_name_column,
@@ -220,15 +220,21 @@ def export2shop(request):
             dest_now_column = dest_now_column,
         );
 
-        if "Error" in resp:
+        name = res [0];
+        errmsg = res [1];
+
+        if "Error" in name:
             return JsonResponse({
                 "ret" : -1,
-                "msg" : resp,
+                "msg" : name,
             });
 
         return JsonResponse({
             "ret" : 0,
-            "data" : resp,
+            "data" : {
+                "name" : name,
+                "errmsg" : errmsg,
+            },
             "msg" : "",
         });
 
@@ -266,6 +272,68 @@ def export_price(request):
             "data" : resp,
             "msg" : "",
         });
+
+@csrf_exempt
+def divfromdata(request):
+    if request.method == 'POST':
+
+        constr = request.POST["constr"];
+
+        def isdigitEx(ch):
+            if ch == "." or isdigit(ch):
+                return True;
+            return False;
+
+        curname = "";
+        curnum = "";
+        curunit = "";
+        isunit = True;
+        isnum = False;
+
+        csv_data = "";
+
+        for k in constr:
+            if isnum and not isdigitEx(k):
+
+                curunit = k;
+                isunit = True;
+
+                # print(curname, curnum, curunit);
+
+                csv_data += "%s,%s,%s\n" % (curname, curnum, curunit);
+
+                curname = "";
+                curunit = "";
+                curnum = "";
+
+            elif (not isnum and isdigitEx(k)) or (isnum and isdigitEx(k)):
+                curnum += k;
+
+            elif isunit and not isdigitEx(k):
+                curname += k;
+
+            isnum = isdigitEx(k);
+
+        output_filename = time.strftime("%Y%m%d%H%M%S_采购表.csv", time.localtime());
+        output_dir = os.path.join("static","download");
+        output_filepath = os.path.join(output_dir, output_filename)
+
+        if not os.path.exists (output_dir):
+            os.makedirs(output_dir);
+
+        with open(output_filepath, "w+", encoding='utf8') as file:
+            file.write(csv_data);
+
+        return JsonResponse({
+            "ret" : 0,
+            "data" : output_filename,
+        })
+
+    return JsonResponse({
+        "ret": -1,
+        "msg": "错误的参数"
+    });
+
 
 def download(request):
     if request.method == 'POST':

@@ -22,9 +22,10 @@ urlpatterns = [
     path('', export.export),
     path('admin/', admin.site.urls),
     path('export/', export.export),
-    path('price/', export.price),
     path('export_price/', export.export_price),
     path(r'export2shop/', export.export2shop),
     path(r'download/', export.download),
     path(r'sheetnames/', export.sheetnames),
+    path(r'divfromdata/', export.divfromdata),
+
 ]
