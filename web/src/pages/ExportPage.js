@@ -267,16 +267,16 @@ export default class ExportPage extends React.Component {
                     </Form.Item>
 
                     <Form.Item
-                        label="价格表文件"
+                        label="采购表文件"
                         name="dest_file"
-                        rules={[{ required: true, message: '请选择价格表文件' }]}
+                        rules={[{ required: true, message: '请选择采购表文件' }]}
                     >
                         <Upload
                             multiple={false}
                             maxCount={1}
                             name='src_file'
                             disabled={this.state.requestings[0]}
-                            rules={[{ required: true, message: '请选择价格表文件' }]}
+                            rules={[{ required: true, message: '请选择采购表文件' }]}
                             accept=".xlsx"
                             action={url_pre + ("/sheetnames/")}
                             onChange={(evt) => {

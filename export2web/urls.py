@@ -26,6 +26,7 @@ urlpatterns = [
     path(r'export2shop/', export.export2shop),
     path(r'download/', export.download),
     path(r'sheetnames/', export.sheetnames),
+    path(r'datafileinfo/', export.datafileinfo),
     path(r'divfromdata/', export.divfromdata),
 
 ]

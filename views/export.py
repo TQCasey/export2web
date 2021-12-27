@@ -180,6 +180,47 @@ def sheetnames(request):
     });
 
 @csrf_exempt
+def datafileinfo(request):
+    if request.method == 'POST':
+        src_file = request.FILES.get("src_file")
+        if not src_file:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : "没有数据文件上传",
+            });
+
+        # product_tbl = load_workbook(src_file, data_only=True);
+        arr = [];
+        try:
+            bytes_content = src_file.read();
+            content = bytes_content.decode ("utf8");
+            content = content.replace("\r\n","\n");
+            lines = content.split("\n");
+
+            for lineinfo in lines:
+                print (lineinfo);
+                iteminfo = lineinfo.split (",");
+                arr.append(iteminfo);
+
+        except Exception as err:
+            return JsonResponse({
+                "ret" : -1,
+                "msg" : str (err),
+            });
+
+        return JsonResponse({
+            "ret": 0,
+            "msg": "",
+            "data" : arr,
+        });
+
+    return JsonResponse({
+        "ret": -1,
+        "msg": "参数错误了好像",
+    });
+
+
+@csrf_exempt
 def export2shop(request):
     if request.method == 'POST':
         src_file = request.FILES.get("src_file")

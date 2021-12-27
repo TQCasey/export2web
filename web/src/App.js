@@ -37,7 +37,7 @@ export default class App extends React.Component {
         super (props);
 
         this.state = {
-            index : 0,
+            index : 3,
         }
 
         this.maps = [
@@ -88,7 +88,7 @@ export default class App extends React.Component {
                     <Content style={{ margin: '24px 16px 0' }}>
                         {this.renderPage ()}
                     </Content>
-                    <Footer style={{ textAlign: 'center' }}>Created By NB Team</Footer>
+                    <Footer style={{ textAlign: 'center' }}>HYBro inc.</Footer>
                 </Layout>
             </Layout>
     }
