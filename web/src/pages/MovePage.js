@@ -24,6 +24,8 @@ import {
     Button
 } from 'antd';
 
+import AppConfig from '../AppConfig'
+
 export default class MovePage extends React.Component {
 
     constructor(props) {
@@ -67,7 +69,7 @@ export default class MovePage extends React.Component {
             return ;
         }
 
-        let downloadLink = "http://127.0.0.1:8000/download?file=" + this.state.downloadName;
+        let downloadLink = AppConfig.getInstance ().parseUrl ("/download?file=" + this.state.downloadName);
 
         return (
             <Form.Item>
@@ -95,7 +97,7 @@ export default class MovePage extends React.Component {
 
         formdata.append ("constr",maps ["constr"]);
 
-        fetch ("http://localhost:8000/divfromdata/",{
+        fetch (AppConfig.getInstance ().parseUrl ("/divfromdata/"),{
             method : "POST",
             headers: {
                 // 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',

@@ -25,6 +25,8 @@ import {
     Button
 } from 'antd';
 
+import AppConfig from '../AppConfig'
+
 export default class ExportPage extends React.Component {
 
     constructor(props) {
@@ -70,7 +72,7 @@ export default class ExportPage extends React.Component {
             return ;
         }
 
-        let downloadLink = "http://127.0.0.1:8000/download?file=" + this.state.downloadName;
+        let downloadLink = AppConfig.getInstance ().parseUrl ("/download?file=" + this.state.downloadName);
 
         return (
             <Form.Item>
@@ -116,7 +118,7 @@ export default class ExportPage extends React.Component {
         formdata.append ("dest_org_column",maps ["dest_org_column"]);
         formdata.append ("dest_now_column",maps ["dest_now_column"]);
 
-        fetch ("http://localhost:8000/export2shop/",{
+        fetch (AppConfig.getInstance ().parseUrl ("/export2shop/"),{
             method : "POST",
             headers: {
                 // 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
@@ -196,7 +198,7 @@ export default class ExportPage extends React.Component {
                             disabled={this.state.requestings[0]}
                             rules={[{ required: true, message: '请选择价格表文件' }]}
                             accept=".xlsx"
-                            action={"http://localhost:8000/sheetnames/"}
+                            action={AppConfig.getInstance ().parseUrl ("/sheetnames/")}
                             onChange={(evt) => {
                                 let fileList = evt.fileList;
                                 let file = evt.file;
@@ -276,7 +278,7 @@ export default class ExportPage extends React.Component {
                             disabled={this.state.requestings[0]}
                             rules={[{ required: true, message: '请选择价格表文件' }]}
                             accept=".xlsx"
-                            action={"http://localhost:8000/sheetnames/"}
+                            action={AppConfig.getInstance ().parseUrl ("/sheetnames/")}
                             onChange={(evt) => {
                                 let fileList = evt.fileList;
                                 let file = evt.file;

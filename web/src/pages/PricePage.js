@@ -24,6 +24,8 @@ import {
     Button
 } from 'antd';
 
+import AppConfig from '../AppConfig'
+
 export default class PricePage extends React.Component {
 
     constructor(props) {
@@ -67,7 +69,7 @@ export default class PricePage extends React.Component {
             return ;
         }
 
-        let downloadLink = "http://127.0.0.1:8000/download?file=" + this.state.downloadName;
+        let downloadLink = AppConfig.getInstance ().parseUrl ( "/download?file=" + this.state.downloadName);
 
         return (
             <Form.Item>
@@ -97,7 +99,7 @@ export default class PricePage extends React.Component {
         formdata.append ("sheet_name",maps ["sheet_name"]);
         formdata.append ("src_file",maps ["src_file"].file.originFileObj);
 
-        fetch ("http://localhost:8000/export_price/",{
+        fetch (AppConfig.getInstance ().parseUrl ("/export_price/"),{
             method : "POST",
             headers: {
                 // 'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
@@ -152,7 +154,7 @@ export default class PricePage extends React.Component {
                             disabled={this.state.requestings[0]}
                             rules={[{ required: true, message: '请选择价格表文件' }]}
                             accept=".xlsx"
-                            action={"http://localhost:8000/sheetnames/"}
+                            action={AppConfig.getInstance ().parseUrl ("/sheetnames/")}
                             onChange={(evt) => {
                                 let fileList = evt.fileList;
                                 let file = evt.file;
