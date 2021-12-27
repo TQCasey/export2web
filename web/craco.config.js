@@ -45,6 +45,23 @@ module.exports = {
 
             // console.log (webpackConfig);
 
+            if (env == "production") {
+                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
+'\nmodule.exports = {\n\
+    url_pre : "",\n\
+}\n\
+                ');
+
+            } else {
+
+                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
+'\nmodule.exports = {\n\
+    url_pre : "http://localhost:8000",\n\
+}\n\
+                ');
+            }
+
+
             // paths.appPath='public'
             paths.appBuild = outname
             webpackConfig.output = {
@@ -81,14 +98,7 @@ module.exports = {
                         ]
                     })
                 )
-
-                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
-'\nmodule.exports = {\n\
-    url_pre : "",\n\
-}\n\
-                ');
-
-
+                
             } else {
                 webpackConfig.plugins.push (
                     new HtmlWebpackPlugin({
@@ -106,12 +116,6 @@ module.exports = {
                         },
                     })
                 );
-
-                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
-'\nmodule.exports = {\n\
-    url_pre : "http://localhost:8000",\n\
-}\n\
-                ');
             }
 
             // webpackConfig.module.rules = [
