@@ -11,6 +11,8 @@ const outputDir = path.resolve(__dirname, '' + outname);
 const IndexHtml = path.resolve(__dirname, 'public', 'index.html');
 const DestIndexHtml = path.resolve(outputDir, 'index.html');
 
+const fs = require ("fs")
+
 // const cssLoaderConfiguration = {
 //     test: /\.css|\.less$/,
 //     use: ['style-loader',
@@ -36,6 +38,8 @@ module.exports = {
 
     webpack: {
         devtool: "source-map",
+        mode : "development",
+        
 
         configure: (webpackConfig, { env, paths }) => {
 
@@ -56,37 +60,59 @@ module.exports = {
                 clean: true,
             };
 
+            console.log (env);
+
             webpackConfig.plugins = [
                 new MiniCssExtractPlugin({
                     // filename: "css/[name].[fullhash:8].css", // change this RELATIVE to your output.path!
                     filename: "css/[name].css", // change this RELATIVE to your output.path!
                 })
                 ,
-                // new HtmlWebpackPlugin({
-                //     filename: DestIndexHtml,
-                //     chunks: [
-                //         'main',
-                //     ],
-                //     template: IndexHtml,
-                //     inject: "body",
-                //     // meta : 'width=device-width, initial-scale=1, minimum-scale=1, user-scalable=0, charset=utf-8',
-                //     minify: {
-                //         caseSensitive: false,
-                //         collapseBooleanAttributes: true,
-                //         collapseWhitespace: true
-                //     },
-                // }),
-
-                new CopyWebpackPlugin ({
-                    patterns : [
-                        {
-                            from : path.resolve (__dirname,"public","index.html"),
-                            to : outputDir,
-                        }
-                    ]
-                })
-
             ];
+
+            if (env == "production") {
+                webpackConfig.plugins.push (
+                    new CopyWebpackPlugin ({
+                        patterns : [
+                            {
+                                from : path.resolve (__dirname,"public","dist-index.html"),
+                                to : path.resolve (outputDir,"index.html"),
+                            }
+                        ]
+                    })
+                )
+
+                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
+'\nmodule.exports = {\n\
+    url_pre : "",\n\
+}\n\
+                ');
+
+
+            } else {
+                webpackConfig.plugins.push (
+                    new HtmlWebpackPlugin({
+                        filename: DestIndexHtml,
+                        chunks: [
+                            'main',
+                        ],
+                        template: IndexHtml,
+                        inject: "body",
+                        // meta : 'width=device-width, initial-scale=1, minimum-scale=1, user-scalable=0, charset=utf-8',
+                        minify: {
+                            caseSensitive: false,
+                            collapseBooleanAttributes: true,
+                            collapseWhitespace: true
+                        },
+                    })
+                );
+
+                fs.writeFileSync (path.resolve (__dirname,"src","AppConfig.js"),
+'\nmodule.exports = {\n\
+    url_pre : "http://localhost:8000",\n\
+}\n\
+                ');
+            }
 
             // webpackConfig.module.rules = [
             //     cssLoaderConfiguration,
