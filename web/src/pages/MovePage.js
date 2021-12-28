@@ -225,13 +225,11 @@ export default class MovePage extends React.Component {
 
     renderSingleItem ({iteminfo}) {
         return (
-            <div className="site-layout-background" style={{ padding: 24, minHeight: 360, minWidth: 200, marginBottom: 10 }}>
+            <div className="site-layout-background" style={{ padding: 24, minHeight: 400, minWidth: 200, marginBottom: 10 }}>
                 <Tag color="#f50">#f50</Tag>
                 <List
                     dataSource={this.state.infos}
                     size="small"
-                    
-                    // style={{maxHeight : 300}}
                     pagination={true}
                     bordered={true}
                     renderItem={(item, key) => {
@@ -267,22 +265,22 @@ export default class MovePage extends React.Component {
 
         return (
             <>
-                <Col span={3} >
+                <Col span={4} >
                     {this.renderSingleItem ({})}
                     {this.renderSingleItem ({})}
                 </Col>
 
-                <Col span={3} >
+                <Col span={4} >
                     {this.renderSingleItem ({})}
                     {this.renderSingleItem ({})}
                 </Col>
 
-                <Col span={3} >
+                <Col span={4} >
                     {this.renderSingleItem ({})}
                     {this.renderSingleItem ({})}
                 </Col>
 
-                <Col span={3} >
+                <Col span={4} >
                     {this.renderSingleItem ({})}
                 </Col>
             </>
@@ -294,7 +292,7 @@ export default class MovePage extends React.Component {
 
             <Row gutter={[8, 8]}>
                 <Col span={4} >
-                    <div className="site-layout-background" style={{ padding: 24, minHeight: 560, minWidth: 460 }}>
+                    <div className="site-layout-background" style={{ padding: 24, minHeight: 660, minWidth: 460 }}>
                         <Form
                             labelCol={{ span: 4 }}
                             wrapperCol={{ span: 4 }}
