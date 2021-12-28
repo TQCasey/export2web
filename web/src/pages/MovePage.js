@@ -180,19 +180,20 @@ export default class MovePage extends React.Component {
                     renderItem={(item, key) => {
                         return (
                             <List.Item 
-                            draggable={true} 
-                            onDragStart={(e) => {
-                                console.log ("onDragStart");
-                                this.onDrageStart (e,item);
-                            }}
-                            onDragOver={(e) => {
-                                e.preventDefault ();
-                            }}
-                            onDragEnd = {(e) => {
-                                let info = e.dataTransfer.getData ('text/plain');
-                                console.log ("onDropEnd",info);
-                                message.info (JSON.stringify (info));
-                            }}
+                                draggable={true} 
+                                onDragStart={(e) => {
+                                    console.log ("onDragStart");
+                                    this.onDrageStart (e,item);
+                                }}
+                                onDragOver={(e) => {
+                                    e.preventDefault ();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault ();
+                                    let info = e.dataTransfer.getData ('data');
+                                    console.log ("onDropEnd",info);
+                                    message.info ("drop : " + JSON.stringify (info));
+                                }}
                             >
                                 {item.name}
                             </List.Item>
@@ -205,7 +206,7 @@ export default class MovePage extends React.Component {
 
     onDrageStart (e,info) {
         message.info ("drag : " + JSON.stringify (info));
-        e.dataTransfer.setData ('text',JSON.stringify(info));
+        e.dataTransfer.setData ('data',JSON.stringify(info));
     }
 
     onDrageOverCallback (e) {
@@ -246,12 +247,7 @@ export default class MovePage extends React.Component {
                                 }}
                                 onDrop={(e) => {
                                     e.preventDefault ();
-                                }}
-                                onDropCapture={(e) => {
-                                    e.preventDefault ();
-                                }}
-                                onDragEnd = {(e) => {
-                                    let info = e.dataTransfer.getData ('text');
+                                    let info = e.dataTransfer.getData ('data');
                                     console.log ("onDropEnd",info);
                                     message.info ("drop : " + JSON.stringify (info));
                                 }}
