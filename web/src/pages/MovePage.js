@@ -11,8 +11,11 @@ import {
     Input,
     message,
     Select,
-    Card, 
+    Card,
+    Row,
+    Col,
     List,
+    Tag,
 } from 'antd';
 
 import {
@@ -40,32 +43,60 @@ export default class MovePage extends React.Component {
             downloadName: "",
             buttonText: "可以了，提交",
 
-            infos : [],
+            infos: [],
+            class_info: {
+                "A": [
+                    { name: "a1", color : "red",list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "B": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "C": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "D": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "E": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "F": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+                "G": [
+                    { name: "a1", list: [] },
+                    { name: "a2", list: [] },
+                    { name: "a3", list: [] },
+                    { name: "a4", list: [] },
+                ],
+            },
         }
 
         this.formRef = React.createRef();
 
-        for (var i = 0 ; i < 50 ; i ++) {
-            this.state.infos.push ({
-                name : "Key" + i,
+        for (var i = 0; i < 50; i++) {
+            this.state.infos.push({
+                name: "Key" + i,
             })
         }
-    }
-
-    renderSheetName() {
-
-        if (this.state.sheetname == "" || !this.state.sheetname) {
-            return;
-        }
-
-        return (
-            <Form.Item label="表名" name="sheet_name" rules={[{ required: true, message: '请输入表名' }]}>
-                <Input
-                    placeholder="表名"
-                    disabled={true}
-                />
-            </Form.Item>
-        )
     }
 
     renderDownloadLink() {
@@ -135,21 +166,35 @@ export default class MovePage extends React.Component {
 
     renderCards() {
         if (this.state.infos.length <= 0) {
-            return ;
+            return;
         }
         return (
             <div className="site-card-wrapper">
+                <Tag color="#f50">原始数据</Tag>
                 <List
                     dataSource={this.state.infos}
-                    size="small"
+                    size="large"
+                    // style={{minHeight : 500}}
                     pagination={true}
                     bordered={true}
-                    renderItem={(item,key) => {
+                    renderItem={(item, key) => {
                         return (
-                            <List.Item>
-                                <Card draggable={true}>
-                                    {item.name}
-                                </Card>
+                            <List.Item 
+                            draggable={true} 
+                            onDragStart={(e) => {
+                                console.log ("onDragStart");
+                                this.onDrageStart (e,item);
+                            }}
+                            onDragOver={(e) => {
+                                e.preventDefault ();
+                            }}
+                            onDragEnd = {(e) => {
+                                let info = e.dataTransfer.getData ('text/plain');
+                                console.log ("onDropEnd",info);
+                                message.info (JSON.stringify (info));
+                            }}
+                            >
+                                {item.name}
                             </List.Item>
                         )
                     }}
@@ -158,72 +203,167 @@ export default class MovePage extends React.Component {
         )
     }
 
+    onDrageStart (e,info) {
+        message.info ("drag : " + JSON.stringify (info));
+        e.dataTransfer.setData ('text',JSON.stringify(info));
+    }
+
+    onDrageOverCallback (e) {
+        console.log (e);
+    }
+
+    onDropCallback (e) {
+        // console.log (e);
+        console.log ("onDrop")
+    }
+
+    onDropOverCallback (e) {
+        // console.log (e);
+        console.log ("onDropOver")
+    }
+
+    renderSingleItem ({iteminfo}) {
+        return (
+            <div className="site-layout-background" style={{ padding: 24, minHeight: 360, minWidth: 200, marginBottom: 10 }}>
+                <Tag color="#f50">#f50</Tag>
+                <List
+                    dataSource={this.state.infos}
+                    size="small"
+                    
+                    // style={{maxHeight : 300}}
+                    pagination={true}
+                    bordered={true}
+                    renderItem={(item, key) => {
+                        return (
+                            <List.Item 
+                                draggable={true} 
+                                onDragStart={(e) => {
+                                    console.log ("onDragStart");
+                                    this.onDrageStart (e,item);
+                                }}
+                                onDragOver={(e) => {
+                                    e.preventDefault ();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault ();
+                                }}
+                                onDropCapture={(e) => {
+                                    e.preventDefault ();
+                                }}
+                                onDragEnd = {(e) => {
+                                    let info = e.dataTransfer.getData ('text');
+                                    console.log ("onDropEnd",info);
+                                    message.info ("drop : " + JSON.stringify (info));
+                                }}
+                            >
+                                {item.name}
+                            </List.Item>
+                        )
+                    }}
+                />
+            </div>
+        )
+    }
+
+    renderContents() {
+
+        let keys = Object.keys (this.state.class_info);
+
+        return (
+            <>
+                <Col span={3} >
+                    {this.renderSingleItem ({})}
+                    {this.renderSingleItem ({})}
+                </Col>
+
+                <Col span={3} >
+                    {this.renderSingleItem ({})}
+                    {this.renderSingleItem ({})}
+                </Col>
+
+                <Col span={3} >
+                    {this.renderSingleItem ({})}
+                    {this.renderSingleItem ({})}
+                </Col>
+
+                <Col span={3} >
+                    {this.renderSingleItem ({})}
+                </Col>
+            </>
+        )
+    }
+
     render() {
         return (
-            <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-                <Form
-                    labelCol={{ span: 4 }}
-                    wrapperCol={{ span: 4 }}
-                    ref={this.formRef}
-                    // layout={formLayout}
-                    layout='horizontal'
-                    onFinish={this.onSubmitClick.bind(this)}
-                >
-                    <Form.Item
-                        label="数据CSV文件"
-                        name="src_file"
-                        rules={[{ required: true, message: '请选择数据CSV文件' }]}
-                    >
-                        <Upload
-                            multiple={false}
-                            maxCount={1}
-                            name='src_file'
-                            disabled={this.state.requestings[0]}
-                            rules={[{ required: true, message: '请选择数据CSV文件' }]}
-                            accept=".csv"
-                            action={url_pre + ("/datafileinfo/")}
-                            onChange={(evt) => {
-                                let fileList = evt.fileList;
-                                let file = evt.file;
 
-                                if (file.status == "success") {
-                                    // message.success ("成功")
-                                } else if (file.status == "error") {
-                                    message.error("上传文件失败");
-                                } else if (file.status == "done") {
-                                    // console.log (file.response);
-                                    if (file.response.ret == 0) {
-                                        console.log(file.response);
-
-                                        // this.setState({
-                                        //     sheetname: file.response.data[0],
-                                        // })
-
-                                        // this.formRef.current.setFieldsValue({
-                                        //     sheet_name: file.response.data[0],
-                                        // });
-
-                                    } else {
-                                        message.error(file.response.msg);
-                                    }
-                                }
-                            }}
+            <Row gutter={[8, 8]}>
+                <Col span={4} >
+                    <div className="site-layout-background" style={{ padding: 24, minHeight: 560, minWidth: 460 }}>
+                        <Form
+                            labelCol={{ span: 4 }}
+                            wrapperCol={{ span: 4 }}
+                            ref={this.formRef}
+                            // layout={formLayout}
+                            layout='horizontal'
+                            onFinish={this.onSubmitClick.bind(this)}
                         >
-                            <Button icon={<UploadOutlined />} disabled={this.state.requestings[0]} >点击上传</Button>
-                        </Upload>
-                    </Form.Item>
+                            <Form.Item
+                                label="CSV文件"
+                                name="src_file"
+                                style={{ minWidth: 250 }}
+                                rules={[{ required: true, message: '请选择数据CSV文件' }]}
+                            >
+                                <Upload
+                                    multiple={false}
+                                    maxCount={1}
+                                    name='src_file'
+                                    disabled={this.state.requestings[0]}
+                                    rules={[{ required: true, message: '请选择数据CSV文件' }]}
+                                    accept=".csv"
+                                    action={url_pre + ("/datafileinfo/")}
+                                    onChange={(evt) => {
+                                        let fileList = evt.fileList;
+                                        let file = evt.file;
 
-                    {this.renderDownloadLink()}
+                                        if (file.status == "success") {
+                                            // message.success ("成功")
+                                        } else if (file.status == "error") {
+                                            message.error("上传文件失败");
+                                        } else if (file.status == "done") {
+                                            // console.log (file.response);
+                                            if (file.response.ret == 0) {
+                                                console.log(file.response);
 
-                    {/* <Form.Item>
-                        <Button type="primary" htmlType="submit" loading={this.state.requestings[0]}>{this.state.buttonText}</Button>
-                    </Form.Item> */}
+                                                // this.setState({
+                                                //     sheetname: file.response.data[0],
+                                                // })
 
-                </Form>
+                                                // this.formRef.current.setFieldsValue({
+                                                //     sheet_name: file.response.data[0],
+                                                // });
 
-                {this.renderCards ()}
+                                            } else {
+                                                message.error(file.response.msg);
+                                            }
+                                        }
+                                    }}
+                                >
+                                    <Button icon={<UploadOutlined />} disabled={this.state.requestings[0]} >点击上传</Button>
+                                </Upload>
+                            </Form.Item>
 
-            </div>
+                            {this.renderDownloadLink()}
+
+                        </Form>
+
+                        {this.renderCards()}
+
+                    </div>
+                </Col>
+
+                {this.renderContents()}
+            </Row>
+
         )
     }
 }
