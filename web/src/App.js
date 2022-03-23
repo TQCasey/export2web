@@ -88,7 +88,7 @@ export default class App extends React.Component {
                     <Content style={{ margin: '24px 16px 0' }}>
                         {this.renderPage ()}
                     </Content>
-                    <Footer style={{ textAlign: 'center' }}>HYBro inc.</Footer>
+                    <Footer style={{ textAlign: 'center' }}><a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2021178313号-1</a></Footer>
                 </Layout>
             </Layout>
     }
